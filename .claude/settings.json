@@ -3,7 +3,8 @@
     "post_init": ".claude/hooks/post_init.sh"
   },
   "skills": {
-    "init": ".claude/skills/init/SKILL.md"
+    "init": ".claude/skills/init/SKILL.md",
+    "dispute-artifact": ".claude/skills/dispute-artifact/SKILL.md"
   },
   "auto_load_skills": ["init"]
 }

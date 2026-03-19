@@ -216,3 +216,204 @@ guardrail_result = integrity_guardrails.check(result, expected_task_id)
 if not guardrail_result.passed:
     handle_guardrail_failure(guardrail_result)
 ```
+
+---
+
+## Dispute Artifact System
+
+When multi-agent disagreements cannot be resolved in a single pass, use the **Dispute Artifact** system to track, analyze, and resolve conflicts systematically.
+
+### 7. Structured Dispute Resolution
+
+The Dispute Artifact provides a durable, comparable, and reviewable record:
+
+```
+Proposer → Critic → Arbiter → REVISE/REJECT
+                                    │
+                         ┌──────────┴──────────┐
+                         ↓                     ↓
+                   Create Dispute        Resolve & Close
+                         │
+              ┌──────────┴──────────┐
+              ↓                     ↓
+         Collaboration          Escalation
+         (autonomous)           (human review)
+```
+
+**Apply to my project:** When agents disagree, create a formal dispute record rather than losing context.
+
+### 8. Convergence Tracking
+
+Track how disagreements evolve across collaboration passes:
+
+| Tag | Meaning | Action |
+|-----|---------|--------|
+| `#new-topic` | First pass, no trajectory yet | Allow 1 autonomous pass |
+| `#narrowing` | Getting closer to resolution | Continue collaboration |
+| `#unchanged` | No progress this pass | Monitor (escalate if high stakes) |
+| `#widening` | Disagreement expanding | **Escalate immediately** |
+
+**Escalation Rules:**
+- `#widening` on any topic → escalate
+- `#unchanged` + NOT `#easily-reversible` for 2+ passes → escalate
+- `#new-topic` not `#narrowing` on second pass + high stakes → escalate
+- 4+ passes without resolution → await human
+
+**Apply to my project:** Track convergence per topic. Escalate stalled high-stakes disagreements.
+
+### 9. Stakes-Aware Decision Making
+
+Not all disagreements are equal. Tag by reversibility:
+
+| Stakes | Meaning | Autonomy Level |
+|--------|---------|----------------|
+| `#easily-reversible` | Low cost to change later | Full autonomous resolution |
+| `#moderate-to-reverse` | Meaningful rework needed | Monitor, escalate if stalled |
+| `#hard-to-reverse` | Major migration/policy change | Escalate early |
+
+**Apply to my project:** Classify decisions by reversibility. Invest review effort proportionally.
+
+### 10. Database Export & Analysis Tools
+
+Extract dispute data from databases for analysis within context windows:
+
+```python
+from tools.dispute_artifact import DatabaseExporter, DisputeAnalyzer
+
+# Export database tables to CSV
+manifest = DatabaseExporter.export("sqlite:./data.db", "./exports/")
+
+# Analyze with context-aware limits
+analyzer = DisputeAnalyzer(max_topics=50)
+analysis = analyzer.analyze_from_csv("./exports/")
+print(analysis.generate_report())  # Fits in context window
+```
+
+**Apply to my project:** Export large datasets to CSV, then analyze summaries within context limits.
+
+---
+
+## Dispute Artifact Key Features
+
+### 1. Database Export
+Auto-detects dispute-related tables by scanning for patterns:
+- Table names: `dispute`, `conflict`, `position`, `topic`, `actor`
+- Column names: `dispute_id`, `stance`, `convergence`, `stakes`, `verdict`
+
+### 2. Convergence Analysis
+Identifies escalation candidates automatically:
+- Topics trending `#widening`
+- Topics stuck `#unchanged` with high stakes
+- Stalled disputes (no progress across 2+ passes)
+
+### 3. Context-Aware Reports
+Fits analysis within context window limits:
+- Max 50 topics per analysis (configurable)
+- Position summaries truncated to 300 chars
+- Prioritized by materiality and stakes
+
+### 4. Synthesis Generation
+Automatic recommendations with basis:
+- `continue-collaboration` — all topics narrowing or low stakes
+- `escalate` — material topics with escalation triggers
+- `await-human` — 4+ passes or elevated overall stakes
+
+---
+
+## Dispute Artifact Structure
+
+```markdown
+## Dispute metadata
+- **dispute_id**: DISP-20240115-0001
+- **lifecycle_status**: open | under-synthesis | awaiting-arbitration | closed
+
+## Actor registry
+- **A**: {role: "Proposer", stance: "..."}
+- **B**: {role: "Critic", stance: "..."}
+
+## Topic Convergence Tracker
+| topic_id | stakes | pass_1 | pass_2 | pass_3 |
+|----------|--------|--------|--------|--------|
+| T1 | #hard-to-reverse | #new-topic | #narrowing | #narrowing |
+| T2 | #easily-reversible | #new-topic | #unchanged | #unchanged |
+
+## Synthesis summary
+- **recommendation**: continue-collaboration
+- **recommendation_basis**: All material topics narrowing or easily reversible
+```
+
+---
+
+## MCP Tools Available
+
+The dispute-artifact skill exposes these MCP tools:
+
+| Tool | Description |
+|------|-------------|
+| `db_to_csv` | Export database tables to CSV files |
+| `csv_analyze` | Analyze CSV data for dispute patterns |
+| `dispute_create` | Create new dispute artifact from conflicts |
+| `dispute_parse` | Parse raw data into artifact format |
+| `convergence_check` | Check topic convergence patterns |
+| `synthesis_generate` | Generate synthesis with recommendation |
+
+### CLI Usage
+
+```bash
+# Export database
+python -m tools.dispute_artifact.cli export sqlite:./data.db
+
+# Analyze exported data
+python -m tools.dispute_artifact.cli analyze ./dispute_exports/
+
+# Create dispute from JSON
+python -m tools.dispute_artifact.cli create --from ./conflicts.json
+
+# Check status
+python -m tools.dispute_artifact.cli status DISP-20240115-0001
+
+# Run synthesis
+python -m tools.dispute_artifact.cli synthesize DISP-20240115-0001
+```
+
+### Skill Invocation
+
+```
+/dispute-artifact export sqlite:./data.db
+/dispute-artifact analyze --file ./dispute_exports/
+/dispute-artifact status --dispute-id DISP-20240115-0001
+/dispute-artifact synthesize DISP-20240115-0001
+```
+
+---
+
+## Updated Folder Structure
+
+```
+your-project/
+├── core_types.py
+├── guardrails.py
+├── budget_manager.py
+├── orchestrator.py
+├── llm_providers.py
+├── config.py
+├── PROPOSER_AGENT.md
+├── CRITIC_AGENT.md
+├── ARBITER_AGENT.md
+├── main.py
+│
+├── tools/
+│   └── dispute_artifact/
+│       ├── __init__.py
+│       ├── db_exporter.py      # SQLite/Postgres/MySQL/JSON → CSV
+│       ├── csv_analyzer.py     # Analyze disputes, generate reports
+│       ├── artifact_parser.py  # Parse data into Dispute Artifact
+│       ├── convergence.py      # Convergence checking, synthesis
+│       ├── mcp_server.py       # MCP tool server
+│       └── cli.py              # Command-line interface
+│
+└── .claude/
+    └── skills/
+        └── dispute-artifact/
+            └── SKILL.md        # Skill definition
+```

@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "dispute-artifact": {
+      "command": "python",
+      "args": ["-m", "tools.dispute_artifact.mcp_server"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
+      }
+    }
+  }
+}

@@ -15,7 +15,9 @@
       "Bash(python -m py_compile:*)",
       "Bash(bash:*)",
       "Bash(pip install:*)",
-      "Bash(python main.py:*)"
+      "Bash(python main.py:*)",
+      "Bash(python -c \"from docx import Document; doc = Document\\(r''C:\\\\Users\\\\thach\\\\Documents\\\\workstation\\\\adversarial-review-with-agent-\\\\.claude\\\\Dispute Artifact.docx''\\); print\\(''\\\\n''.join\\([p.text for p in doc.paragraphs]\\)\\)\")",
+      "Bash(git add:*)"
     ]
   }
 }
