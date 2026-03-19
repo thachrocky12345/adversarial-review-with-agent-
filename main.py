@@ -13,6 +13,10 @@ Run with: python main.py
 
 import logging
 import sys
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 from orchestrator import AdversarialReviewOrchestrator
 from llm_providers import check_api_keys
