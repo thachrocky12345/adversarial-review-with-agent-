@@ -1,0 +1,6 @@
+# Adversarial Review Pipeline Dependencies
+
+# LLM Providers
+anthropic>=0.40.0       # Claude API
+openai>=1.0.0           # GPT-4o API
+google-genai>=0.1.0     # Gemini API

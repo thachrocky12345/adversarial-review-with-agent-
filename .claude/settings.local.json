@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(chmod:*)",
+      "Bash(bash .claude/hooks/post_init.sh)",
+      "Bash(node:*)",
+      "Bash(npm install:*)",
+      "Bash(npx vite:*)",
+      "Bash(npx kill-port:*)",
+      "Bash(find:*)",
+      "Bash(cd:*)",
+      "Bash(curl:*)",
+      "Bash(tree:*)",
+      "Bash(dir:*)",
+      "Bash(python -m py_compile:*)",
+      "Bash(bash:*)"
+    ]
+  }
+}
